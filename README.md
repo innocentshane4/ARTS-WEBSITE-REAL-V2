@@ -39,3 +39,4 @@ firestore.rules     database security rules
 firebase.json       hosting and rules configuration
 DATABASE.md         collections, fields and relationships
 ```
+Team Manager: Ayanda Maseko Developer: Njabulo Fushane System Tester : Ntando Nxumalo Team: The Round Table
