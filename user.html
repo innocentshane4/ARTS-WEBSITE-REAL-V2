@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ARTS - My account</title>
+<link rel="icon" href="logo.svg">
+<link rel="stylesheet" href="css/styles.css">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+</head>
+<body>
+<header class="u-bar">
+  <span class="ab-mark"><img src="logo.svg" alt=""></span><span class="grow">ARTS</span>
+  <span id="who" class="only-desktop"></span><button id="outBtn">Sign out</button>
+</header>
+
+<nav class="u-tabs">
+  <button data-tab="home" class="on">Home</button>
+  <button data-tab="report">Report incident</button>
+  <button data-tab="mine">My reports</button>
+  <button data-tab="medical">Medical info</button>
+  <button data-tab="security">Security</button>
+  <button data-tab="settings">Settings</button>
+  <button data-tab="help">Help</button>
+</nav>
+
+<main class="u-main-single" id="view"></main>
+
+<button id="panicFab" class="panic-fab" title="Send an emergency report with your location" aria-label="Panic button">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4"/><path d="M12 17h.01"/><path d="M10.3 3.9 2.5 17a2 2 0 0 0 1.7 3h15.6a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>
+  <span>SOS</span>
+</button>
+
+<div class="modal-overlay" id="detailModal">
+  <div class="modal" style="max-width:640px;">
+    <div class="modal-header"><h3 id="detailTitle">Incident</h3><button class="modal-close" data-close-modal="detailModal">&times;</button></div>
+    <div class="modal-body" id="detailBody"></div>
+    <div class="modal-footer"><button class="btn btn-secondary" data-close-modal="detailModal">Close</button></div>
+  </div>
+</div>
+
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<script src="js/firebase.js"></script>
+<script src="js/totp.js"></script>
+<script src="js/storage.js"></script>
+<script src="js/user.js"></script>
+</body>
+</html>

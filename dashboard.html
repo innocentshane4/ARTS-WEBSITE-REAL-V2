@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ARTS Admin — Dashboard</title>
+<link rel="icon" href="logo.svg">
+<link rel="stylesheet" href="css/styles.css">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+</head>
+<body>
+
+<div class="shell">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="mark"><img src="logo.svg" alt="ARTS"></div>
+      <div>
+        <div class="wordmark">ARTS Admin</div>
+        <div class="sub">Control Center</div>
+      </div>
+    </div>
+
+    <nav class="nav-group">
+      <div class="nav-item active" data-section="overview">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>
+        <span>Overview</span>
+      </div>
+      <div class="nav-item" data-section="incidents">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.9 2.4 18a2 2 0 0 0 1.7 3h15.8a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
+        <span>Incidents</span>
+        <span class="nav-badge" id="navIncidentBadge" style="display:none;">0</span>
+      </div>
+      <div class="nav-item" data-section="map">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 20l-6-3V4l6 3 6-3 6 3v13l-6-3-6 3z"/><path d="M9 7v13"/><path d="M15 4v13"/></svg>
+        <span>Map</span>
+      </div>
+      <div class="nav-item" data-section="services">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21V8l7-4 7 4v13"/><path d="M13 21v-6h4v6"/><path d="M7 21v-9h3v9"/></svg>
+        <span>Services</span>
+      </div>
+      <div class="nav-item" data-section="users">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        <span>Users</span>
+      </div>
+      <div class="nav-item" data-section="analytics">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 15l4-6 4 3 5-8"/></svg>
+        <span>Analytics</span>
+      </div>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="sidebar-user">
+        <div class="avatar" id="sidebarAvatar">A</div>
+        <div>
+          <div class="name" id="sidebarName">Administrator</div>
+          <div class="role">System Admin</div>
+        </div>
+      </div>
+      <div class="nav-item" id="logoutBtn" style="margin-top:8px;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>
+        <span>Log Out</span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <div class="main">
+
+    <div class="topbar">
+      <h1 id="pageTitle">Overview</h1>
+      <div class="topbar-actions">
+        <span style="font-size:13px;color:var(--ink-soft);" id="todayDate"></span>
+        <div class="notif-wrap">
+          <button class="icon-btn notif-bell" id="notifBellBtn" title="Notifications">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+            <span class="notif-count" id="notifCount" style="display:none;">0</span>
+          </button>
+          <div class="notif-panel" id="notifPanel">
+            <div class="notif-panel-header">
+              <span>Notifications</span>
+              <button class="link-btn" id="markAllReadBtn">Mark all read</button>
+            </div>
+            <div class="notif-panel-body" id="notifPanelBody"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="status-strip">
+      <div class="status-cell">
+        <span class="num" id="statTotal">0</span>
+        <span class="lbl">Total incidents</span>
+      </div>
+      <div class="status-cell">
+        <span class="num alert-num" id="statPending">0</span>
+        <span class="lbl">Awaiting review</span>
+      </div>
+      <div class="status-cell">
+        <span class="num" id="statForwarded">0</span>
+        <span class="lbl">Forwarded</span>
+      </div>
+      <div class="status-cell">
+        <span class="num" id="statResolved">0</span>
+        <span class="lbl">Resolved</span>
+      </div>
+      <div class="status-cell">
+        <span class="num" id="statServices">0</span>
+        <span class="lbl">Contracted services</span>
+      </div>
+      <div class="status-cell">
+        <span class="num" id="statUsers">0</span>
+        <span class="lbl">Registered users</span>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <!-- ============ OVERVIEW ============ -->
+      <section class="section active" id="section-overview">
+        <div class="card seed-banner" id="seedBanner" hidden>
+          <div>
+            <h3 style="margin:0;">Load demo data</h3>
+            <div class="u-note">Fills the database with sample users, incidents, services, dispatches and notifications (ten or more of each) so every page has something to show. Real accounts are not touched.</div>
+          </div>
+          <button class="btn btn-primary" id="seedBtn" style="width:auto;">Load demo data</button>
+        </div>
+
+        <div class="overview-widgets">
+          <div class="card widget-card">
+            <div class="widget-head"><span class="widget-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="8" width="16" height="12" rx="2"/><path d="M9 8V5a3 3 0 0 1 6 0v3"/><circle cx="9" cy="14" r="1"/><circle cx="15" cy="14" r="1"/></svg></span><h3>AI triage insights</h3></div>
+            <div class="widget-big" id="aiWidgetCount">0</div>
+            <div class="u-note" id="aiWidgetSub">urgent incidents auto-dispatched</div>
+            <div class="widget-list" id="aiWidgetList"></div>
+          </div>
+          <div class="card widget-card">
+            <div class="widget-head"><span class="widget-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17.5 19a4.5 4.5 0 0 0 0-9 6 6 0 0 0-11.6 1.7A4 4 0 0 0 6.5 19h11z"/></svg></span><h3>Weather at HQ</h3></div>
+            <div id="weatherWidgetBody"><div class="u-note">Loading…</div></div>
+          </div>
+          <div class="card widget-card">
+            <div class="widget-head"><span class="widget-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 4 6v6c0 5 3.4 8.4 8 9 4.6-.6 8-4 8-9V6l-8-3z"/><path d="M9 12l2 2 4-4"/></svg></span><h3>Service readiness</h3></div>
+            <div class="widget-big" id="svcWidgetCount">0</div>
+            <div class="u-note" id="svcWidgetSub">of 0 contracted services active</div>
+            <div class="widget-bar"><div class="widget-bar-fill" id="svcWidgetBar" style="width:0%"></div></div>
+          </div>
+        </div>
+
+        <div class="section-header">
+          <h2>Needs your attention</h2>
+        </div>
+        <div id="overviewPendingList"></div>
+
+        <div class="section-header" style="margin-top:32px;">
+          <h2>Recently resolved</h2>
+        </div>
+        <div id="overviewResolvedList"></div>
+      </section>
+
+      <!-- ============ INCIDENTS ============ -->
+      <section class="section" id="section-incidents">
+        <div class="section-header">
+          <h2>All incidents</h2>
+          <button class="btn btn-secondary" id="exportCsvBtn" style="width:auto;"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px;"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>Export CSV</button>
+        </div>
+        <div class="filter-bar">
+          <input type="search" id="incidentSearch" placeholder="Search incidents by title or location…">
+          <button class="filter-chip active" data-filter="All">All</button>
+          <button class="filter-chip" data-filter="Pending">Pending</button>
+          <button class="filter-chip" data-filter="Forwarded">Forwarded</button>
+          <button class="filter-chip" data-filter="Resolved">Resolved</button>
+        </div>
+        <div id="incidentsList"></div>
+      </section>
+
+      <!-- ============ MAP ============ -->
+      <section class="section" id="section-map">
+        <div class="section-header">
+          <h2>Live incident map</h2>
+          <div class="map-legend">
+            <span><i class="dot high"></i> High</span>
+            <span><i class="dot medium"></i> Medium</span>
+            <span><i class="dot low"></i> Low</span>
+          </div>
+        </div>
+        <div class="card" style="padding:0; overflow:hidden;">
+          <div id="incidentMap"></div>
+        </div>
+      </section>
+
+      <!-- ============ SERVICES ============ -->
+      <section class="section" id="section-services">
+        <div class="section-header">
+          <h2>Contracted emergency services</h2>
+          <button class="btn btn-primary" id="addServiceBtn" style="width:auto;">+ Add Service</button>
+        </div>
+        <div class="filter-bar">
+          <input type="search" id="serviceSearch" placeholder="Search services by name…">
+          <button class="filter-chip active" data-svc-filter="All">All</button>
+          <button class="filter-chip" data-svc-filter="Ambulance">Ambulance</button>
+          <button class="filter-chip" data-svc-filter="Police">Police</button>
+          <button class="filter-chip" data-svc-filter="Fire">Fire</button>
+          <button class="filter-chip" data-svc-filter="Traffic">Traffic</button>
+          <button class="filter-chip" data-svc-filter="Towing">Towing</button>
+          <button class="filter-chip" data-svc-filter="Hospital">Hospital</button>
+        </div>
+        <div class="services-grid" id="servicesGrid"></div>
+      </section>
+
+      <!-- ============ USERS ============ -->
+      <section class="section" id="section-users">
+        <div class="section-header">
+          <h2>Registered users</h2>
+        </div>
+        <div class="filter-bar">
+          <input type="search" id="userSearch" placeholder="Search users by name or email…">
+        </div>
+        <div class="card" style="padding:0; overflow-x:auto;">
+          <table class="data-table" id="usersTable">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Contact</th>
+                <th>Blood Type</th>
+                <th>Medical Aid</th>
+                <th>Joined</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="usersTableBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ============ ANALYTICS ============ -->
+      <section class="section" id="section-analytics">
+
+        <div class="card insights-card">
+          <h3>Insights</h3>
+          <ul class="insights-list" id="insightsList"></ul>
+        </div>
+
+        <div class="analytics-grid">
+          <div class="card" style="grid-column:1/-1;">
+            <h3>Incident trend - last 14 days</h3>
+            <div id="chartTrend" class="line-chart"></div>
+          </div>
+          <div class="card">
+            <h3>When incidents happen most</h3>
+            <div id="chartHourly" class="bar-chart"></div>
+            <p class="chart-footnote">Hour of day, based on when reports were logged. A simple historical pattern, not a certified forecast.</p>
+          </div>
+          <div class="card">
+            <h3>Highest-incident areas</h3>
+            <div id="chartHotspots" class="bar-chart"></div>
+            <p class="chart-footnote">Grouped from reported coordinates. Areas with more history carry more predictive weight.</p>
+          </div>
+        </div>
+
+        <div class="analytics-grid">
+          <div class="card">
+            <h3>Incidents by priority</h3>
+            <div id="chartPriority" class="bar-chart"></div>
+          </div>
+          <div class="card">
+            <h3>Incidents by type</h3>
+            <div id="chartType" class="bar-chart"></div>
+          </div>
+          <div class="card">
+            <h3>Average time to resolution</h3>
+            <div class="stat-highlight" id="avgResolutionTime">—</div>
+            <p style="font-size:12.5px;">Based on incidents marked Resolved.</p>
+          </div>
+          <div class="card">
+            <h3>Most-dispatched services</h3>
+            <div id="chartServices" class="bar-chart"></div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </div>
+</div>
+
+<!-- ============ MODALS ============ -->
+
+<div class="modal-overlay" id="incidentModal">
+  <div class="modal" style="max-width:600px;">
+    <div class="modal-header">
+      <h3 id="incidentModalTitle">Incident</h3>
+      <button class="modal-close" data-close-modal="incidentModal">&times;</button>
+    </div>
+    <div class="modal-body" id="incidentModalBody"></div>
+    <div class="modal-footer" id="incidentModalFooter"></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="forwardModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>Forward to services</h3>
+      <button class="modal-close" data-close-modal="forwardModal">&times;</button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:13px;color:var(--ink-soft);margin-bottom:14px;">Select every service that should respond to this incident.</p>
+      <div class="service-checklist" id="forwardServiceList"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" data-close-modal="forwardModal">Cancel</button>
+      <button class="btn btn-primary" id="confirmForwardBtn" style="width:auto;">Forward Selected</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="serviceModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="serviceModalTitle">Add Service</h3>
+      <button class="modal-close" data-close-modal="serviceModal">&times;</button>
+    </div>
+    <div class="modal-body">
+      <form id="serviceForm">
+        <input type="hidden" id="svcId">
+        <div class="field">
+          <label for="svcName">Service name</label>
+          <input type="text" id="svcName" placeholder="e.g. Netcare 911" required>
+        </div>
+        <div class="field">
+          <label for="svcType">Service type</label>
+          <select id="svcType" required>
+            <option value="Ambulance">Ambulance</option>
+            <option value="Police">Police</option>
+            <option value="Fire">Fire</option>
+            <option value="Traffic">Traffic</option>
+            <option value="Towing">Towing</option>
+            <option value="Hospital">Hospital</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+        <div class="form-grid-2">
+          <div class="field">
+            <label for="svcPhone">Phone</label>
+            <input type="text" id="svcPhone" placeholder="e.g. 082 911 0911" required>
+          </div>
+          <div class="field">
+            <label for="svcEmail">Email (optional)</label>
+            <input type="email" id="svcEmail" placeholder="dispatch@service.co.za">
+          </div>
+        </div>
+        <div class="field">
+          <label for="svcAddress">Address</label>
+          <input type="text" id="svcAddress" placeholder="e.g. Rivonia Road, Sandton">
+        </div>
+        <div class="field">
+          <label for="svcNotes">Notes (optional)</label>
+          <textarea id="svcNotes" placeholder="Anything the team should know about this contract"></textarea>
+        </div>
+        <div class="field" style="display:flex;align-items:center;gap:10px;">
+          <input type="checkbox" id="svcActive" checked style="width:16px;height:16px;accent-color:var(--pine);">
+          <label for="svcActive" style="margin:0;">Active contract</label>
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" data-close-modal="serviceModal">Cancel</button>
+      <button class="btn btn-primary" id="saveServiceBtn" style="width:auto;">Save Service</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="userModal">
+  <div class="modal" style="max-width:600px;">
+    <div class="modal-header">
+      <h3 id="userModalTitle">User Profile</h3>
+      <button class="modal-close" data-close-modal="userModal">&times;</button>
+    </div>
+    <div class="modal-body" id="userModalBody"></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="confirmModal">
+  <div class="modal" style="max-width:420px;">
+    <div class="modal-header">
+      <h3 id="confirmModalTitle">Are you sure?</h3>
+      <button class="modal-close" data-close-modal="confirmModal">&times;</button>
+    </div>
+    <div class="modal-body">
+      <p id="confirmModalBody" style="font-size:14px;color:var(--ink-soft);"></p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" data-close-modal="confirmModal">Cancel</button>
+      <button class="btn btn-danger" id="confirmModalActionBtn">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<script src="js/firebase.js"></script>
+<script src="js/storage.js"></script>
+<script src="js/seed.js"></script>
+<script src="js/incidents.js"></script>
+<script src="js/services.js"></script>
+<script src="js/users.js"></script>
+<script src="js/map.js"></script>
+<script src="js/analytics.js"></script>
+<script src="js/dashboard.js"></script>
+<script src="js/notifications.js"></script>
+</body>
+</html>

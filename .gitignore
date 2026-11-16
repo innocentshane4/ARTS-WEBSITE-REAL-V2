@@ -1,0 +1,27 @@
+
+# Dependencies
+node_modules/
+vendor/
+
+# Environment variables
+.env
+.env.*
+!.env.example
+
+# Firebase local files
+.firebase/
+firebase-debug.log
+firestore-debug.log
+
+# Private credentials
+service-account*.json
+*-service-account*.json
+*private-key*.json
+
+# Build folders
+dist/
+build/
+
+# Operating system
+.DS_Store
+Thumbs.db
